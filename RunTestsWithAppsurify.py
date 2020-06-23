@@ -692,7 +692,10 @@ if testtemplate == "mvn":
     reporttype="directory"
     deletereports="true"
 
+
+print('testtemplate is '+ testtemplate)
 if testtemplate == "mvn demo":
+    print('in mvn demo')
     testseparator=","
     addtestsuitename="true"
     testsuitesnameseparator="#"
