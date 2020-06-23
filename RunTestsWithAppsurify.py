@@ -702,6 +702,7 @@ if testtemplate == "mvn demo":
     report="./target/surefire-reports/"
     reporttype="directory"
     deletereports="true"
+    print('report = '+report)
 
 #mvn test -Dcucumber.options="--name 'another scenario' --name '^a few cukes$'"
 if testtemplate == "cucmber mvn":
@@ -914,6 +915,7 @@ if testtemplate == "opentest":
 #squish
 #test cafe
 
+print('report = '+report)
 
 if len(sys.argv) > 1 :
     for k in range(1,c):
@@ -1026,6 +1028,8 @@ if commit == "":
 #git branch | grep \* | cut -d ' ' -f2
 #git rev-parse --abbrev-ref HEAD
 #https://stackoverflow.com/questions/6245570/how-to-get-the-current-branch-name-in-git
+
+print('report = '+report)
 
 if branch == "":
     branch=runcommand("git rev-parse --abbrev-ref HEAD").rstrip("\n\r").rstrip()
