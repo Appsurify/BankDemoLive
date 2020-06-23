@@ -21,24 +21,31 @@ steps:
 #    testResultsFiles: '**/surefire-reports/TEST-*.xml'
 #    goals: 'package'
 
+#Run tests using appsurify shell command
+- bash: chmod +x RunTestsWithAppsurify.sh GetAndRunTests.sh PushResultsToAppsurify.sh GetResultsFromAppsurify.sh
+  displayName: "Set permissions"  
+- bash: ./RunTestsWithAppsurify.sh --url "https://demo.appsurify.com" --apikey "MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz" --project "Demo GoodRX" --testsuite "Selenium" --report "./results/" --reporttype "directory" --teststorun "high" --startrun "mvn -Dtest=" --fullname "true" --fullnameseparator "#" --endrun " test" --testseparator ","
+  displayName: "Run tests with Appsurify"
+
+
 # Use Python version
 # Use the specified version of Python from the tool cache, optionally adding it to the PATH
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.7' 
-    addToPath: true 
-    #architecture: 'x64' # Options: x86, x64 (this argument applies only on Windows agents)
+#- task: UsePythonVersion@0
+#  inputs:
+#    versionSpec: '3.7' 
+#    addToPath: true 
+#    #architecture: 'x64' # Options: x86, x64 (this argument applies only on Windows agents)
 
-- bash: pip install pyyaml -U --upgrade-strategy eager
-  displayName: "Install pyyaml"
-- bash: pip install requests -U --upgrade-strategy eager
-  displayName: "Install requests"
+#- bash: pip install pyyaml -U --upgrade-strategy eager
+#  displayName: "Install pyyaml"
+#- bash: pip install requests -U --upgrade-strategy eager
+#  displayName: "Install requests"
 #run python
-- task: PythonScript@0
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'RunTestsWithAppsurify.py'
-    arguments: '--url ''https://demo.appsurify.com'' --apikey ''MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz'' --project ''Demo Andrew'' --testsuite ''Selenium'' --runtemplate ''prioritized tests with unassigned'' --testtemplate ''mvn demo'''
-    #pythonInterpreter: # Optional
-    #workingDirectory: # Optional
-    #failOnStderr: false # Optional
+#- task: PythonScript@0
+#  inputs:
+#    scriptSource: 'filePath'
+#    scriptPath: 'RunTestsWithAppsurify.py'
+#    arguments: '--url ''https://demo.appsurify.com'' --apikey ''MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz'' --project ''Demo Andrew'' --testsuite ''Selenium'' --runtemplate ''prioritized tests with unassigned'' --testtemplate ''mvn demo'''
+#    #pythonInterpreter: # Optional
+#    #workingDirectory: # Optional
+#    #failOnStderr: false # Optional
