@@ -10,13 +10,29 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: Maven@3
+#- task: Maven@3
+#  inputs:
+#    mavenPomFile: 'pom.xml'
+#    mavenOptions: '-Xmx3072m'
+#    javaHomeOption: 'JDKVersion'
+#    jdkVersionOption: '1.8'
+#    jdkArchitectureOption: 'x64'
+#    publishJUnitResults: true
+#    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+#    goals: 'package'
+
+# Use Python version
+# Use the specified version of Python from the tool cache, optionally adding it to the PATH
+- task: UsePythonVersion@0
   inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
+    versionSpec: '3.6' 
+    addToPath: true 
+    #architecture: 'x64' # Options: x86, x64 (this argument applies only on Windows agents)
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: 'RunTestsWithAppsurify.py'
+    arguments: '--url "https://demo.appsurify.com" --apikey "MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz" --project "Demo Andrew" --testsuite "Selenium" --runtemplate ''prioritized tests with unassigned'' --testtemplate ''mvn'''
+    #pythonInterpreter: # Optional
+    #workingDirectory: # Optional
+    #failOnStderr: false # Optional
