@@ -30,7 +30,9 @@ steps:
     #architecture: 'x64' # Options: x86, x64 (this argument applies only on Windows agents)
 
 - bash: pip install pyyaml -U --upgrade-strategy eager
-  displayName: "Install python packages"
+  displayName: "Install pyyaml"
+- bash: pip install requests -U --upgrade-strategy eager
+  displayName: "Install requests"
 #run python
 - task: PythonScript@0
   inputs:
