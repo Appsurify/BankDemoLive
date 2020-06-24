@@ -21,7 +21,7 @@ steps:
 #    testResultsFiles: '**/surefire-reports/TEST-*.xml'
 #    goals: 'package'
 
-Run tests using appsurify shell command
+#Run tests using appsurify shell command
 - bash: chmod +x RunTestsWithAppsurify.sh GetAndRunTests.sh PushResultsToAppsurify.sh GetResultsFromAppsurify.sh
   displayName: "Set permissions"  
 #- bash: ./RunTestsWithAppsurify.sh --url "https://demo.appsurify.com" --apikey "MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz" --project "Healthcare Value Stream" --testsuite "Selenium" --report "./results/" --reporttype "directory" --teststorun "high" --startrun "mvn -Dtest=" --fullname "true" --fullnameseparator "#" --endrun " test" --testseparator ","
