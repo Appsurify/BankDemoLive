@@ -10,22 +10,22 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-#- task: Maven@3
-#  inputs:
-#    mavenPomFile: 'pom.xml'
-#    mavenOptions: '-Xmx3072m'
-#    javaHomeOption: 'JDKVersion'
-#    jdkVersionOption: '1.8'
-#    jdkArchitectureOption: 'x64'
-#    publishJUnitResults: true
-#    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-#    goals: 'package'
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    goals: 'package'
 
 #Run tests using appsurify shell command
-- bash: chmod +x RunTestsWithAppsurify.sh GetAndRunTests.sh PushResultsToAppsurify.sh GetResultsFromAppsurify.sh
-  displayName: "Set permissions"  
-- bash: ./RunTestsWithAppsurify.sh --url "https://demo.appsurify.com" --apikey "MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz" --project "Test Philips" --testsuite "Selenium" --report "./results/" --reporttype "directory" --teststorun "high" --startrun "mvn -Dtest=" --fullname "true" --fullnameseparator "#" --endrun " test" --testseparator ","
-  displayName: "Run tests with Appsurify"
+#- bash: chmod +x RunTestsWithAppsurify.sh GetAndRunTests.sh PushResultsToAppsurify.sh GetResultsFromAppsurify.sh
+#  displayName: "Set permissions"  
+#- bash: ./RunTestsWithAppsurify.sh --url "https://demo.appsurify.com" --apikey "MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz" --project "Test Philips" --testsuite "Selenium" --report "./results/" --reporttype "directory" --teststorun "high" --startrun "mvn -Dtest=" --fullname "true" --fullnameseparator "#" --endrun " test" --testseparator ","
+#  displayName: "Run tests with Appsurify"
 
 
 # Use Python version
