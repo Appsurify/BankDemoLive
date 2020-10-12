@@ -19,7 +19,10 @@ except ImportError:
 
 tests=""
 testsrun=""
-demo="false"
+run_id=""
+proxy=""
+username=""
+password=""
 
 def find(name):
     currentdir = os.getcwd() # using current dir, could change this to work with full computer search
@@ -113,7 +116,7 @@ def generate_katalon(teststocreate):
     for test in root.findall('testCaseLink'):
         testids = test.findall('testCaseId')
         for testid in testids:
-            print(testid.text)
+            print((testid.text))
             if testid.text not in testlist:
                 root.remove(test)
 
@@ -199,7 +202,7 @@ def generate_sahi(teststocreate):
                 row = " ".join(values)
                 print(row)
                 standalonerows.append(row)
-                print('Found {}'.format(row))
+                print(('Found {}'.format(row)))
 
     print(standalonerows)
 
@@ -226,7 +229,7 @@ def generate_sahi(teststocreate):
             for row in reader:
                 #print(row)
                 if testname in row:
-                    print ('Found: {}'.format(row))
+                    print(('Found: {}'.format(row)))
                     for i, column in enumerate(row):
                         if testname in column:
                             row[i] = find(testname)
@@ -254,8 +257,8 @@ def runcommand(command):
     echo("platform = " + sys.platform)
     result = subprocess.run(command,  shell=True, capture_output=True)
     #subprocess.run(['ls', '-l'])stdout=subprocess.PIPE,
-    print(result.stdout.decode('utf-8'))
-    print(result.stderr.decode('utf-8'))
+    print((result.stdout.decode('utf-8')))
+    print((result.stderr.decode('utf-8')))
     return result.stdout.decode('utf-8')
 
 def delete_reports():
@@ -269,7 +272,7 @@ def delete_reports():
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
             except Exception as e:
-                print('Failed to delete %s. Reason: %s' % (file_path, e))
+                print(('Failed to delete %s. Reason: %s' % (file_path, e)))
     if reporttype == "file":
         os.remove(report)
 
@@ -285,11 +288,6 @@ def execute_tests(testlist, testset):
             command = startrunall + startrunpostfix + testlist + endrunprefix + endrunall + endrunpostfix
         else:
             command = startrunspecific + startrunpostfix + testlist + endrunprefix + endrunspecific + endrunpostfix
-        if demo == "true":
-            if testset == 0:
-                command = startrunall + startrunpostfix  + endrunprefix + endrunall + endrunpostfix
-            else:
-                command = startrunspecific
 
     if generatefile == "sahi":
         generate_sahi(testlist)
@@ -316,6 +314,7 @@ def execute_tests(testlist, testset):
     runcommand(command)
     echo(os.getcwd())
     push_results()
+
 
 def get_tests(testpriority):
     echo("getting test set "+ str(testpriority))
@@ -372,30 +371,40 @@ def get_tests(testpriority):
 
     print(params)
 
-    response = requests.get(url+'/api/external/prioritized-tests/', headers=headers, params=params)
+    if proxy == "":
+        response = requests.get(url+'/api/external/prioritized-tests/', headers=headers, params=params)
+    else:
+        httpproxy = "http://"+proxy
+        httpsproxy = "https://"+proxy
+        proxies = {"http": httpproxy,"https": httpsproxy}
+        if username == "":
+            response = requests.get(url+'/api/external/prioritized-tests/', headers=headers, params=params, proxies=proxies)
+        else:
+            auth = HTTPProxyAuth(username, password)
+            response = requests.get(url+'/api/external/prioritized-tests/', headers=headers, params=params, proxies=proxies, auth=auth)
     print("request sent to get tests")
-    print(response.status_code)
+    print((response.status_code))
 
     if response.status_code >= 500:
-        print('[!] [{0}] Server Error'.format(response.status_code))
+        print(('[!] [{0}] Server Error'.format(response.status_code)))
         return None
     elif response.status_code == 404:
-        print('[!] [{0}] URL not found: [{1}]'.format(response.status_code,api_url))
+        print(('[!] [{0}] URL not found: [{1}]'.format(response.status_code,api_url)))
         return None  
     elif response.status_code == 401:
-        print('[!] [{0}] Authentication Failed'.format(response.status_code))
+        print(('[!] [{0}] Authentication Failed'.format(response.status_code)))
         return None
     elif response.status_code == 400:
-        print('[!] [{0}] Bad Request'.format(response.status_code))
+        print(('[!] [{0}] Bad Request'.format(response.status_code)))
         return None
     elif response.status_code >= 300:
-        print('[!] [{0}] Unexpected Redirect'.format(response.status_code))
+        print(('[!] [{0}] Unexpected Redirect'.format(response.status_code)))
         return None
     elif response.status_code == 200:
         testset = json.loads(response.content.decode('utf-8'))
         return testset
     else:
-        print('[?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content))
+        print(('[?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content)))
     return None
 
 def get_and_run_tests(type):
@@ -455,30 +464,41 @@ def getresults():
     params = (
         ('test_run', run_id),
     )
-
-    response = requests.get(url+'/api/external/output/', headers=headers, params=params)
+    print(params)
+    print(headers)
+    if proxy == "":
+        response = requests.get(url+'/api/external/output/', headers=headers, params=params)
+    else:
+        httpproxy = "http://"+proxy
+        httpsproxy = "https://"+proxy
+        proxies = {"http": httpproxy,"https": httpsproxy}
+        if username == "":
+            response = requests.get(url+'/api/external/output/', headers=headers, params=params, proxies=proxies)
+        else:
+            auth = HTTPProxyAuth(username, password)
+            response = requests.get(url+'/api/external/output/', headers=headers, params=params, proxies=proxies, auth=auth)
     print("result request sent")
     resultset = ""
     if response.status_code >= 500:
-        print('[!] [{0}] Server Error'.format(response.status_code))
+        print(('[!] [{0}] Server Error'.format(response.status_code)))
         return None
     elif response.status_code == 404:
-        print('[!] [{0}] URL not found: [{1}]'.format(response.status_code,api_url))
+        print(('[!] [{0}] URL not found: [{1}]'.format(response.status_code,api_url)))
         return None  
     elif response.status_code == 401:
-        print('[!] [{0}] Authentication Failed'.format(response.status_code))
+        print(('[!] [{0}] Authentication Failed'.format(response.status_code)))
         return None
     elif response.status_code == 400:
-        print('[!] [{0}] Bad Request'.format(response.status_code))
+        print(('[!] [{0}] Bad Request'.format(response.status_code)))
         return None
     elif response.status_code >= 300:
-        print('[!] [{0}] Unexpected Redirect'.format(response.status_code))
+        print(('[!] [{0}] Unexpected Redirect'.format(response.status_code)))
         return None
     elif response.status_code == 200:
         resultset = json.loads(response.content.decode('utf-8'))
         echo(resultset)
     else:
-        print('[?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content))
+        print(('[?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content)))
 
 
     if resultset["new_defects"] and "newdefects" in fail:
@@ -526,25 +546,38 @@ def call_import(filepath):
     print(headers)
     print(payload)
     print(apiurl)
-    response = requests.post(apiurl, headers=headers, data=payload, files=files)
+    if proxy == "":
+        response = requests.post(apiurl, headers=headers, data=payload, files=files)
+    else:
+        httpproxy = "http://"+proxy
+        httpsproxy = "https://"+proxy
+        proxies = {"http": httpproxy,"https": httpsproxy}
+        if username == "":
+            response = requests.post(apiurl, headers=headers, data=payload, files=files, proxies=proxies)
+        else:
+            auth = HTTPProxyAuth(username, password)
+            response = requests.post(apiurl, headers=headers, data=payload, files=files, proxies=proxies, auth=auth)
+    
     print("file import sent")
     if response.status_code >= 500:
-        print('[!] [{0}] Server Error {1}'.format(response.status_code, response.content.decode('utf-8')))
+        print(('[!] [{0}] Server Error {1}'.format(response.status_code, response.content.decode('utf-8'))))
     elif response.status_code == 404:
-        print('[!] [{0}] URL not found: []'.format(response.status_code))
+        print(('[!] [{0}] URL not found: []'.format(response.status_code)))
     elif response.status_code == 401:
-        print('[!] [{0}] Authentication Failed'.format(response.status_code))
+        print(('[!] [{0}] Authentication Failed'.format(response.status_code)))
     elif response.status_code == 400:
-        print('[!] [{0}] Bad Request'.format(response.status_code))
+        print(('[!] [{0}] Bad Request'.format(response.status_code)))
     elif response.status_code >= 300:
-        print('[!] [{0}] Unexpected Redirect'.format(response.status_code))
+        print(('[!] [{0}] Unexpected Redirect'.format(response.status_code)))
     elif response.status_code == 200 or response.status_code == 201:
         resultset = json.loads(response.content.decode('utf-8'))
         echo(resultset)
         echo("report url = " + resultset["report_url"])
-        run_id = resultset["test_run_id"]
+        echo("run url = " + str(resultset["test_run_id"]))
+        global run_id
+        run_id = str(resultset["test_run_id"])
     else:
-        print('[?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content))
+        print(('[?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content)))
 
 url = ""
 apikey =""
@@ -691,21 +724,10 @@ if testtemplate == "mvn":
     report="./target/surefire-reports/"
     reporttype="directory"
     deletereports="true"
+    print("here")
+    print("report1 = "+report)
 
-
-print('testtemplate is '+ testtemplate)
-if testtemplate == "mvn demo":
-    print('in mvn demo')
-    testseparator=","
-    addtestsuitename="true"
-    testsuitesnameseparator="#"
-    startrunspecific="mvn -Dtest=OnlineAccountTests test"
-    endrunspecific=" test"
-    startrunall="mvn test"
-    report="./target/surefire-reports/"
-    reporttype="directory"
-    deletereports="true"
-    print('report = '+report)
+print("report = "+report)
 
 #mvn test -Dcucumber.options="--name 'another scenario' --name '^a few cukes$'"
 if testtemplate == "cucmber mvn":
@@ -826,6 +848,20 @@ if testtemplate == "mstest":
     report=testtemplatearg1
     importtype="trx"
 
+
+#vstest
+#/Tests:TestMethod1,testMethod2
+#vstest.console.exe"  /testcontainer:"%WORKSPACE%\MYPROJECT\bin\debug\MYTEST.dll" /test:"ABC" /resultsfile:"%WORKSPACE%\result_%BUILD_NUMBER%.xml"
+if testtemplate == "vstest":
+    testseparator=","
+    reporttype="file"
+    startrunspecific="vstest.console.exe /resultsfile:'" + testtemplatearg1 + "' /testcontainer:'" + testtemplatearg2 + "'" + "/tests:"
+    postfixtest="'"
+    prefixtest="'"
+    startrunall="vstest.console.exe /resultsfile:'" + testtemplatearg1 + "' /testcontainer:'" + testtemplatearg2 + "'"
+    report=testtemplatearg1
+    importtype="trx"
+
 #Jasmine3
 #npm install -g jasmine-xml-reporter for jasmine 2.x then use --junitreport and --output to determine where to output the report.
 #npm install -g jasmine-junit-reporter requires jasmine --reporter=jasmine-junit-reporter creates file junit_report
@@ -918,7 +954,6 @@ if testtemplate == "opentest":
 #squish
 #test cafe
 
-print('report = '+report)
 
 if len(sys.argv) > 1 :
     for k in range(1,c):
@@ -998,8 +1033,20 @@ if len(sys.argv) > 1 :
             endrunprefix = sys.argv[k+1]
         if sys.argv[k] == "--endrunpostfix":
             endrunpostfix = sys.argv[k+1]
+        if sys.argv[k] == "--proxy":
+            proxy = sys.argv[k+1]
+        if sys.argv[k] == "--username":
+            username = sys.argv[k+1]
+        if sys.argv[k] == "--password":
+            password = sys.argv[k+1]
         if sys.argv[k] == "--help":
             echo("please see url for more details on this script and how to execute your tests with appsurify - https://github.com/Appsurify/AppsurifyCIScript")
+
+if "http://" in proxy:
+    proxy = proxy.replace("http://","")
+
+if "https://" in proxy:
+    proxy = proxy.replace("https://","")
 
 if url[-1:] == "/":
     url = url[:-1]
@@ -1026,17 +1073,15 @@ projectencoded=project
 if commit == "":
     commit=runcommand("git log -1 --pretty=\"%H\"")
     commit = commit.rstrip().rstrip("\n\r")
-    print("commit id = " + commit)
+    print(("commit id = " + commit))
 
 #git branch | grep \* | cut -d ' ' -f2
 #git rev-parse --abbrev-ref HEAD
 #https://stackoverflow.com/questions/6245570/how-to-get-the-current-branch-name-in-git
 
-print('report = '+report)
-
 if branch == "":
     branch=runcommand("git rev-parse --abbrev-ref HEAD").rstrip("\n\r").rstrip()
-    print("branch = " + branch)
+    print(("branch = " + branch))
 
 if url == "":
     echo("no url specified")
@@ -1076,9 +1121,9 @@ if startrunspecific == "" and teststorun == "all" and rerun == "true":
 ####example RunTestsWithAppsurify.sh --url "http://appsurify.dev.appsurify.com" --apikey "MTpEbzhXQThOaW14bHVQTVdZZXNBTTVLT0xhZ00" --project "Test" --testsuite "Test" --report "report" --teststorun "all" --startrun "mvn -tests" 
 #example RunTestsWithAppsurify.sh --url "http://appsurify.dev.appsurify.com" --apikey "MTpEbzhXQThOaW14bHVQTVdZZXNBTTVLT0xhZ00" --project "Test" --testsuite "Test" --report "report" --teststorun "all" --startrun "C:\apache\apache-maven-3.5.0\bin\mvn tests " 
 #./RunTestsWithAppsurify.sh --url "https://demo.appsurify.com" --apikey "MTU6a3Q1LUlTU3ZEcktFSTFhQUNoYy1DU3pidkdz" --project "Spirent Demo" --testsuite "Unit" --report "c:\testresults\GroupedTests1.xml" --teststorun "all" --commit "44e9b51296e41e044e45b81e0ef65e9dc4c3bc23"
-#python RunTestsWithAppsurify.py --url "http://appsurify.dev.appsurify.com" --apikey "MTpEbzhXQThOaW14bHVQTVdZZXNBTTVLT0xhZ00" --project "Test" --testsuite "Test"
+#python RunTestsWithAppsurify.py --url "http://appsurify.dev.appsurify.com" --apikey "MTpEbzhXQThOaW14bHVQTVdZZXNBTTVLT0xhZ00" --project "Test" --testsuite "Test" --runtemplate "no tests" --testtemplate "mvn"
 
-run_id=""
+#run_id=""
 
 #$url $apiKey $project $testsuite $fail $additionalargs $endrun $testseparator $postfixtest $prefixtest $startrun $fullnameseparator $fullname $failfast $maxrerun $rerun $importtype $teststorun $reporttype $report $commit $run_id
 echo("Getting tests to run")
@@ -1107,7 +1152,7 @@ if "unassigned" in teststorun:
 
 ####start loop
 for i in testtypes:
-    print("testsrun1 = " + testsrun)
+    print(("testsrun1 = " + testsrun))
     testsrun = get_and_run_tests(i) + testsrun
 
 if testsrun == "":
